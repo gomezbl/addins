@@ -1,0 +1,15 @@
+{
+  "name": "addins",
+  "version": "0.0.1",
+  "description": "Plugins module loader",
+  "main": "addins.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Rafa G. Blanes",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  }
+}
