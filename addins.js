@@ -17,6 +17,10 @@ function _loadAddinsFolders( addinsPath ) {
 	return new Promise( function( resolve, reject ) {
 		let pathToRead = addinsPath === undefined ? path.join( process.cwd(), ADDINS_FOLDER_NAME ) : addinsPath;
 
+		if ( !fs.existsSync(pathToRead) ) {
+			reject(util.format("Path with addins not found: %s", pathToRead) );
+		}
+
 		fs.readdir( pathToRead, function(err,files) {
 			if ( err ) reject(err);
 			else {
