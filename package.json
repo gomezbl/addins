@@ -1,6 +1,6 @@
 {
   "name": "addins",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Plugins module loader",
   "main": "addins.js",
   "scripts": {

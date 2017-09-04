@@ -51,7 +51,16 @@ function _loadAddins( pathsToAddins ) {
 
 			if( fs.existsSync( fullPathToAddin ) ) {
 				let addin = require(fullPathToAddin);
-				addinsLoaded.push( { addinName: p.addinName, addinModule: addin } )
+				let readmeContent = "";
+				let fullPathToReadme = path.join( p.addinFullPath, "README.md");
+
+				if ( fs.existsSync( fullPathToReadme ) ) {
+					readmeContent = readmeContent = fs.readFileSync(fullPathToReadme, "utf8")
+				}
+				addinsLoaded.push( { addinName: p.addinName, 
+									 addinModule: addin, 
+									 pathToAddin: fullPathToAddin,
+									 readme: readmeContent } )
 			} else {
 				reject( util.format("Expected adding %s not found", fullPathToAddin) );
 			}			
@@ -74,10 +83,48 @@ module.exports.loadAddins = function( addinsPath ) {
 }
 
 /*
- * Returns the number of addins loaded in previous call to loadAddins()
+ * Returns an array with all addins loaded in previous call to loadAddins()
+ * Each elements consists of a json object such as: 
+ * {
+ *	addinName: <name of the adding>
+ *  addinModule: <module object instance of the addin>
+ *  pathToAddin: <full path to adding location>
+ *  readme: <README.md file content if exists>
+ * }
  */
 module.exports.getAddins = function() {
 	return _addins;
+}
+
+/*
+ * Returns all info about an addin loaded in a previous call to loadAddins()
+ * Param:
+ * 	name: name of the addin
+ * Returns a json object with addin info:
+ * {
+ *	addinName: <name of the adding>
+ *  addinModule: <module object instance of the addin>
+ *  pathToAddin: <full path to adding location>
+ *  readme: <README.md file content if exists>
+ * }
+ * Throws and exception if no addin of name <name> exists
+ */
+module.exports.getAddinModuleInfoByName = function(name) {
+	let moduleInfo = null;
+	
+	if ( !_addins ) throw new Error("loadAddins() method should be called first");
+
+	for( let i = 0; i < _addins.length && moduleInfo == null; i++) {
+		if ( _addins[i].addinName === name ) {
+			moduleInfo = _addins[i];
+		}
+	}
+
+	if ( !moduleInfo ) {
+		throw new Error( util.format( "No addin with name %s found", name ) );	
+	} 
+
+	return moduleInfo;
 }
 
 /* 
@@ -91,11 +138,11 @@ module.exports.getAddinModuleByName = function( name ) {
 	
 	if ( !_addins ) throw new Error("loadAddins() method should be called first");
 
-	_addins.forEach( (addin) => {
-		if ( addin.addinName === name ) {
-			module = addin.addinModule;
+	for( let i = 0; i < _addins.length && module == null; i++) {
+		if ( _addins[i].addinName === name ) {
+			module = _addins[i].addinModule;
 		}
-	})
+	}
 
 	if ( !module ) {
 		throw new Error( util.format( "No addin with name %s found", name ) );	
